@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Division Game for Grade 3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        /* Same CSS as before */
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: #fffbe6;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            color: #333;
+            padding: 20px;
+            background-color: #ffd27f;
+            margin: 0;
+            font-size: 36px;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding-top: 20px;
+        }
+        #start-container {
+            display: block;
+        }
+        #start-button {
+            padding: 20px 40px;
+            font-size: 24px;
+            margin: 20px auto;
+            cursor: pointer;
+            background-color: #84b6f4;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 2px 2px 5px #999;
+            transition: background-color 0.3s;
+            display: block;
+        }
+        #start-button:hover {
+            background-color: #5da9f6;
+        }
+        #name-input {
+            font-size: 24px;
+            padding: 10px;
+            width: 80%;
+            max-width: 300px;
+            margin-bottom: 20px;
+        }
+        #question-container {
+            display: none;
+            margin-top: 30px;
+        }
+        #question-number {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        #question {
+            font-size: 32px;
+            margin: 30px 0;
+            color: #333;
+            padding: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.4;
+        }
+        .option-button {
+            display: block;
+            padding: 15px 30px;
+            font-size: 24px;
+            margin: 15px auto;
+            cursor: pointer;
+            background-color: #ffb347;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 300px;
+            transition: background-color 0.3s;
+        }
+        .option-button:hover {
+            background-color: #ff9a00;
+        }
+        #feedback {
+            font-size: 28px;
+            margin-top: 20px;
+            min-height: 40px;
+        }
+        #next-button {
+            padding: 15px 30px;
+            font-size: 24px;
+            margin: 20px auto;
+            cursor: pointer;
+            background-color: #77dd77;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            display: none;
+            transition: background-color 0.3s;
+        }
+        #next-button:hover {
+            background-color: #5ecb5e;
+        }
+        #score {
+            font-size: 28px;
+            margin-top: 30px;
+            color: #333;
+        }
+        #final-score {
+            font-size: 36px;
+            margin-top: 30px;
+            color: #333;
+        }
+        #restart-button {
+            padding: 20px 40px;
+            font-size: 24px;
+            margin: 20px auto;
+            cursor: pointer;
+            background-color: #ffcc5c;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            transition: background-color 0.3s;
+            display: none;
+        }
+        #restart-button:hover {
+            background-color: #ffb84d;
+        }
+        #timer {
+            font-size: 24px;
+            color: #d9534f;
+            margin-top: 10px;
+        }
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 28px;
+                padding: 15px;
+            }
+            #question {
+                font-size: 28px;
+            }
+            .option-button {
+                font-size: 20px;
+                padding: 10px 20px;
+            }
+            #start-button, #restart-button {
+                font-size: 20px;
+                padding: 15px 30px;
+            }
+            #name-input {
+                font-size: 20px;
+                padding: 8px;
+            }
+            #next-button {
+                font-size: 20px;
+                padding: 10px 20px;
+            }
+            #feedback {
+                font-size: 24px;
+            }
+            #question-number, #score, #timer {
+                font-size: 24px;
+            }
+            #final-score {
+                font-size: 28px;
+            }
+        }
+        #question-container > * {
+            margin-bottom: 20px;
+        }
+        .option-button {
+            margin: 15px auto;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Division Game for Grade 3</h1>
+
+    <div class="container">
+        <div id="start-container">
+            <input type="text" id="name-input" placeholder="Enter your name">
+            <br>
+            <button id="start-button" onclick="startGame()">Start Game</button>
+        </div>
+
+        <div id="question-container">
+            <div id="question-number"></div>
+            <div id="timer"></div>
+            <div id="question"></div>
+            <div id="answer-container"></div>
+            <button class="option-button" id="option1" onclick="checkAnswer(0)"></button>
+            <button class="option-button" id="option2" onclick="checkAnswer(1)"></button>
+            <button class="option-button" id="option3" onclick="checkAnswer(2)"></button>
+            <button class="option-button" id="option4" onclick="checkAnswer(3)"></button>
+            <div id="feedback"></div>
+            <button id="next-button" onclick="nextQuestion()">Next Question</button>
+            <div id="score"></div>
+        </div>
+
+        <div id="final-score"></div>
+        <button id="restart-button" onclick="restartGame()">Play Again</button>
+    </div>
+
+    <script>
+        let playerName = '';
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        const totalQuestions = 50;
+        let timerInterval;
+        let timeLeft = 30;
+
+        function startGame() {
+            playerName = document.getElementById('name-input').value.trim();
+            if (playerName === '') {
+                alert('Please enter your name to start the game.');
+                return;
+            }
+            document.getElementById('start-container').style.display = 'none';
+            document.getElementById('question-container').style.display = 'block';
+            generateQuestions();
+            showQuestion();
+            startTimer();
+        }
+
+        function generateQuestions() {
+            questions = [];
+            for (let i = 0; i < totalQuestions; i++) {
+                let questionType = getRandomQuestionType();
+                let questionObj = generateQuestionByType(questionType);
+                questions.push(questionObj);
+            }
+        }
+
+        function getRandomQuestionType() {
+            const types = ['property1', 'property2', 'property3', 'property4', 'divideBy10', 'divideBy100', 'divideBy1000'];
+            return types[Math.floor(Math.random() * types.length)];
+        }
+
+        function generateQuestionByType(type) {
+            let dividend, divisor, quotient, remainder, questionText, correctAnswer, options = [];
+            switch (type) {
+                case 'property1':
+                    dividend = getRandomInt(1, 9999);
+                    divisor = 1;
+                    quotient = dividend;
+                    questionText = `What is ${dividend} ÷ ${divisor}?`;
+                    correctAnswer = quotient.toString();
+                    options = generateOptions(correctAnswer);
+                    break;
+                case 'property2':
+                    dividend = getRandomInt(1, 9999);
+                    divisor = dividend;
+                    quotient = 1;
+                    questionText = `What is ${dividend} ÷ ${divisor}?`;
+                    correctAnswer = quotient.toString();
+                    options = generateOptions(correctAnswer);
+                    break;
+                case 'property3':
+                    dividend = 0;
+                    divisor = getRandomInt(1, 9);
+                    quotient = 0;
+                    questionText = `What is ${dividend} ÷ ${divisor}?`;
+                    correctAnswer = quotient.toString();
+                    options = generateOptions(correctAnswer);
+                    break;
+                case 'property4':
+                    dividend = getRandomInt(1, 9999);
+                    divisor = 0;
+                    questionText = `What is ${dividend} ÷ ${divisor}?`;
+                    correctAnswer = 'Undefined';
+                    options = ['0', 'Undefined', dividend.toString(), 'Cannot divide by zero'];
+                    break;
+                case 'divideBy10':
+                    dividend = getRandomInt(10, 9999);
+                    divisor = 10;
+                    quotient = Math.floor(dividend / divisor);
+                    remainder = dividend % divisor;
+                    questionText = `What is the quotient and remainder when ${dividend} is divided by ${divisor}?`;
+                    correctAnswer = `Quotient: ${quotient}, Remainder: ${remainder}`;
+                    options = generateQuotientRemainderOptions(quotient, remainder);
+                    break;
+                case 'divideBy100':
+                    dividend = getRandomInt(100, 9999);
+                    divisor = 100;
+                    quotient = Math.floor(dividend / divisor);
+                    remainder = dividend % divisor;
+                    questionText = `What is the quotient and remainder when ${dividend} is divided by ${divisor}?`;
+                    correctAnswer = `Quotient: ${quotient}, Remainder: ${remainder}`;
+                    options = generateQuotientRemainderOptions(quotient, remainder);
+                    break;
+                case 'divideBy1000':
+                    dividend = getRandomInt(1000, 9999);
+                    divisor = 1000;
+                    quotient = Math.floor(dividend / divisor);
+                    remainder = dividend % divisor;
+                    questionText = `What is the quotient and remainder when ${dividend} is divided by ${divisor}?`;
+                    correctAnswer = `Quotient: ${quotient}, Remainder: ${remainder}`;
+                    options = generateQuotientRemainderOptions(quotient, remainder);
+                    break;
+            }
+            return {
+                questionText: questionText,
+                options: options,
+                correctAnswer: correctAnswer
+            };
+        }
+
+        function generateOptions(correctAnswer) {
+            let options = [correctAnswer];
+            while (options.length < 4) {
+                let option = (parseInt(correctAnswer) + getRandomInt(-10, 10)).toString();
+                if (!options.includes(option) && parseInt(option) >= 0) {
+                    options.push(option);
+                }
+            }
+            return shuffleArray(options);
+        }
+
+        function generateQuotientRemainderOptions(correctQuotient, correctRemainder) {
+            let options = [`Quotient: ${correctQuotient}, Remainder: ${correctRemainder}`];
+            while (options.length < 4) {
+                let optionQuotient = correctQuotient + getRandomInt(-5, 5);
+                let optionRemainder = correctRemainder + getRandomInt(-5, 5);
+                if (optionQuotient < 0) optionQuotient = 0;
+                if (optionRemainder < 0) optionRemainder = 0;
+                let option = `Quotient: ${optionQuotient}, Remainder: ${optionRemainder}`;
+                if (!options.includes(option)) {
+                    options.push(option);
+                }
+            }
+            return shuffleArray(options);
+        }
+
+        function showQuestion() {
+            resetTimer();
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('next-button').style.display = 'none';
+
+            let questionObj = questions[currentQuestionIndex];
+            document.getElementById('question-number').textContent = `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
+            document.getElementById('question').textContent = questionObj.questionText;
+            document.getElementById('score').textContent = `${playerName}'s Score: ${score}`;
+
+            for (let i = 1; i <= 4; i++) {
+                let optionButton = document.getElementById(`option${i}`);
+                if (questionObj.options[i - 1]) {
+                    optionButton.textContent = questionObj.options[i - 1];
+                    optionButton.style.display = 'block';
+                    optionButton.disabled = false;
+                } else {
+                    optionButton.style.display = 'none';
+                }
+            }
+        }
+
+        function checkAnswer(selectedOptionIndex) {
+            clearInterval(timerInterval);
+            let questionObj = questions[currentQuestionIndex];
+            let selectedOption = document.getElementById(`option${selectedOptionIndex + 1}`).textContent;
+            let correctAnswer = questionObj.correctAnswer;
+
+            if (selectedOption.toLowerCase() === correctAnswer.toLowerCase() || (selectedOption === 'Cannot divide by zero' && correctAnswer === 'Undefined')) {
+                document.getElementById('feedback').textContent = 'Correct! 🎉';
+                score += 10;
+            } else {
+                document.getElementById('feedback').textContent = `Incorrect. The correct answer is ${correctAnswer}.`;
+            }
+            document.getElementById('score').textContent = `${playerName}'s Score: ${score}`;
+            document.getElementById('next-button').style.display = 'block';
+
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`option${i}`).disabled = true;
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < totalQuestions) {
+                showQuestion();
+                startTimer();
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            document.getElementById('question-container').style.display = 'none';
+            document.getElementById('final-score').innerHTML = `Great job, ${playerName}!<br>Your final score is ${score} out of ${totalQuestions * 10}.`;
+            document.getElementById('restart-button').style.display = 'block';
+        }
+
+        function restartGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            document.getElementById('restart-button').style.display = 'none';
+            document.getElementById('final-score').textContent = '';
+            document.getElementById('start-container').style.display = 'block';
+            document.getElementById('question-container').style.display = 'none';
+            document.getElementById('name-input').value = '';
+        }
+
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function startTimer() {
+            timeLeft = 30;
+            document.getElementById('timer').textContent = `Time Left: ${timeLeft} sec`;
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = `Time Left: ${timeLeft} sec`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('feedback').textContent = 'Time\'s up!';
+                    document.getElementById('next-button').style.display = 'block';
+                    disableInputs();
+                }
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            document.getElementById('timer').textContent = '';
+        }
+
+        function disableInputs() {
+            for (let i = 1; i <= 4; i++) {
+                let optionButton = document.getElementById(`option${i}`);
+                if (optionButton) optionButton.disabled = true;
+            }
+        }
+    </script>
+</body>
+</html>
